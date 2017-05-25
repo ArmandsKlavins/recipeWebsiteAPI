@@ -14,6 +14,7 @@ namespace recipeWebsite.Configs
             Mapper.Initialize(c =>
             {
                 c.CreateMap<Recipe, RecipeVM>();
+                c.CreateMap<Recipe, Recipe>();
             });
         }
     }

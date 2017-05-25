@@ -141,6 +141,7 @@ namespace recipeWebsite.services
                 r.Ingredients = ingredient[rand.Next(0, 15)];
                 r.Directions = direction[rand.Next(0, 15)];
                 r.CreatedBy = "Eric Andre";
+                r.IsDeleted = false;
                 context.Recipes.Add(r);
             }
 
