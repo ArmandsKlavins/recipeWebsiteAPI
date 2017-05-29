@@ -15,6 +15,7 @@ namespace recipeWebsite.Configs
             {
                 c.CreateMap<Recipe, RecipeVM>();
                 c.CreateMap<Recipe, Recipe>();
+                c.CreateMap<User, Token>();
             });
         }
     }
