@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Security.Cryptography;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,10 +9,28 @@ namespace recipeWebsite.services
 {
     public class DbInitializer
     {
+        private static RandomNumberGenerator rngCsp = RandomNumberGenerator.Create();
+
         public static void Initialize(WebsiteContext context)
         {
+            
             context.Database.EnsureCreated();
+            if(!context.Users.Any())
+            {
+                byte[] salt;
+                rngCsp.GetBytes(salt = new byte[8]);
 
+                var pbkdf2 = new Rfc2898DeriveBytes("pass", salt, 1);
+                byte[] hash = pbkdf2.GetBytes(8);
+
+                byte[] hashBytes = new byte[16];
+                Array.Copy(salt, 0, hashBytes, 0, 8);
+                Array.Copy(hash, 0, hashBytes, 8, 8);
+
+                string savedPasswordHash = Convert.ToBase64String(hashBytes);
+                context.Users.Add(new User { Username = "user", Password = savedPasswordHash, FullName = "Rick Sanchezz" });
+                context.SaveChanges();
+            }
             if (context.Recipes.Any())
             {
                 return;
@@ -129,6 +148,7 @@ namespace recipeWebsite.services
                 "Preheat an oven to 400 degrees F (200 degrees C).;Place the beef into a mixing bowl, and season with salt, onion, garlic salt, Italian seasoning, oregano, red pepper flakes, hot pepper sauce, and Worcestershire sauce; mix well. Add the milk, Parmesan cheese, and bread crumbs. Mix until evenly blended, then form into 1 1 / 2 - inch meatballs, and place onto a baking sheet.;Bake in the preheated oven until no longer pink in the center, 20 to 25 minutes."
             };
             Random rand = new Random();
+            
             for (int i = 0; i < 15; i++)
             {
                 var r = new Recipe();
@@ -144,6 +164,10 @@ namespace recipeWebsite.services
                 r.IsDeleted = false;
                 context.Recipes.Add(r);
             }
+
+            
+
+
 
 
             context.SaveChanges();
