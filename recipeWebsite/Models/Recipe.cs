@@ -16,6 +16,7 @@ namespace recipeWebsite.Models
         public string Directions { get; set; }
         public string Url { get; set; }
         public string CreatedBy { get; set; }
+        public ICollection<RecipesCategories> RecipesCategories { get; set; }
     }
     public class RecipeVM
     {
@@ -28,5 +29,16 @@ namespace recipeWebsite.Models
         public string Directions { get; set; }
         public string Url { get; set; }
         public string CreatedBy { get; set; }
+        public IList<Categories> Categories { get; set; }
+    }
+    
+    
+
+    public class RecipesCategories
+    {
+        public long RecipeId { get; set; }
+        public long CategoryId { get; set; }
+        public Recipe Recipe { get; set; }
+        public Category Category { get; set; }
     }
 }

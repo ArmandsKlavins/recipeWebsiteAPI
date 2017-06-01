@@ -19,13 +19,18 @@ namespace recipeWebsite.Controllers
             DB = context;
         }
 
-        // GET api/recipes/5
+        // GET api/recipes/list
         [HttpGet("list")]
         public async Task<IActionResult> Get()
         {
-            var recipes = await DB.Recipes.Where(c => c.IsDeleted == false).ToListAsync();
-            //var recipesVM = Mapper.Map<IList<Recipe>,IList<RecipeVM>>(recipes);
-            return Ok(recipes);
+            var recipes = await DB.Recipes.Where(c => c.IsDeleted == false)
+                
+                .Include(c => c.RecipesCategories)
+                .ThenInclude(c => c.Category).ToListAsync();
+            var recipesVM = Mapper.Map<IList<Recipe>, IList<RecipeVM>>(recipes);
+
+            //var cat = Mapper.Map<ICollection<RecipesCategories>, IList<Categories>>(recipes[0].RecipesCategories);
+            return Ok(recipesVM);
         }
 
         // POST api/recipes

@@ -13,7 +13,11 @@ namespace recipeWebsite.Configs
         {
             Mapper.Initialize(c =>
             {
-                c.CreateMap<Recipe, RecipeVM>();
+                c.CreateMap<RecipesCategories, Categories>()
+                .ForMember(x => x.Name, o => o.MapFrom(y => y.Category.Name));
+                
+                c.CreateMap<Recipe, RecipeVM>()
+                .ForMember(x => x.Categories, o => o.MapFrom(y => y.RecipesCategories));
                 c.CreateMap<Recipe, Recipe>();
                 c.CreateMap<User, Token>();
             });

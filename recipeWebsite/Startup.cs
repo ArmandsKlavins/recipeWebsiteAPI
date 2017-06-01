@@ -11,6 +11,8 @@ using recipeWebsite.Models;
 using Microsoft.EntityFrameworkCore;
 using recipeWebsite.services;
 using recipeWebsite.Configs;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json;
 
 namespace recipeWebsite
 {
@@ -33,7 +35,15 @@ namespace recipeWebsite
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc()
+
+                  .AddJsonOptions(x =>
+                  {
+                      x.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                      x.SerializerSettings.DateFormatHandling = DateFormatHandling.IsoDateFormat;
+                      x.SerializerSettings.DateTimeZoneHandling = DateTimeZoneHandling.Utc;
+                      x.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+                  }); ;
             var connection = @"Server=(localdb)\MSSQLLocalDB;Database=Recipe_Website;Trusted_Connection=True;";
             
             services.AddDbContext<WebsiteContext>(options => options.UseSqlServer(connection));

@@ -31,10 +31,10 @@ namespace recipeWebsite.services
                 context.Users.Add(new User { Username = "user", Password = savedPasswordHash, FullName = "Rick Sanchezz" });
                 context.SaveChanges();
             }
-            if (context.Recipes.Any())
+            if (!context.Recipes.Any())
             {
-                return;
-            }
+                
+            
             string[] names = {
                 "Grilled Spanish Mustard Beef",
                 "Banana Banana Bread",
@@ -164,8 +164,18 @@ namespace recipeWebsite.services
                 r.IsDeleted = false;
                 context.Recipes.Add(r);
             }
+            }
 
-            
+            if(!context.Categories.Any()){
+                string[] categories = { "Snacks", "BBQ & Grilling","Breakfast and Brunch", "Desserts", "Dinner", "Drinks", "Healthy", "Holiday meals", "Lunch" };
+                for (int i = 0; i < categories.Length; i++)
+                {
+                    Category c = new Category();
+                    c.Name = categories[i];
+                    context.Categories.Add(c);
+                }
+
+            }
 
 
 
