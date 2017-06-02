@@ -13,6 +13,7 @@ namespace recipeWebsite.Models
 
     public class Categories
     {
+        public long Id { get; set; }
         public string Name { get; set; }
     }
 
