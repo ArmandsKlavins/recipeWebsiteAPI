@@ -20,11 +20,22 @@ namespace recipeWebsite.Controllers
         }
 
         // GET api/categories/list
-        [HttpGet("list")]
-        public async Task<IActionResult> Get()
+        [HttpPost("list")]
+        public async Task<IActionResult> Get([FromBody] CategoryQuery cq)
         {
-            var categories = await DB.Categories.Where(c => c.IsDeleted == false).ToListAsync();
-            return Ok(categories);
+            var categories = DB.Categories.Where(c => c.IsDeleted == false);
+            if (!String.IsNullOrEmpty(cq.Filter)) { 
+            categories = categories.Where(c => c.Name.Contains(cq.Filter));
+            }
+            var CategoryCount = categories.Count().ToString();
+
+            HttpContext.Response.Headers.Add("CategoryCount", CategoryCount);
+            HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "CategoryCount");
+            if (cq.Limit != 0)
+            {
+                categories = categories.Skip(cq.Limit * (cq.Page - 1)).Take(cq.Limit);
+            }
+            return Ok(await categories.ToListAsync());
         }
 
         // POST api/categories

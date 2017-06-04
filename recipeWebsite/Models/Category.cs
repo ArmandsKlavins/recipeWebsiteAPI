@@ -17,4 +17,11 @@ namespace recipeWebsite.Models
         public string Name { get; set; }
     }
 
+    public class CategoryQuery
+    {
+        public string Filter { get; set; }
+        public int Limit { get; set; }
+        public int Page { get; set; }
+    }
+
 }

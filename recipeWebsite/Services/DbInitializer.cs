@@ -28,7 +28,7 @@ namespace recipeWebsite.services
                 Array.Copy(hash, 0, hashBytes, 8, 8);
 
                 string savedPasswordHash = Convert.ToBase64String(hashBytes);
-                context.Users.Add(new User { Username = "user", Password = savedPasswordHash, FullName = "Rick Sanchezz" });
+                context.Users.Add(new User { Username = "user", Password = savedPasswordHash, FullName = "Rick Sanchez" });
                 context.SaveChanges();
             }
             if (!context.Recipes.Any())
@@ -147,9 +147,10 @@ namespace recipeWebsite.services
                 "Preheat oven to 400 degrees F (200 degrees C).;Season ribs with salt and pepper. Place in a shallow baking pan. Brown in oven 15 minutes. Turn over, and brown another 15 minutes; drain fat.;In a medium bowl, mix together the ketchup, chili sauce, brown sugar, vinegar, oregano, Worcestershire sauce, hot sauce, and salt and pepper. Place ribs in slow cooker. Pour sauce over ribs, and turn to coat.;Cover, and cook on Low 6 to 8 hours, or until ribs are tender.",
                 "Preheat an oven to 400 degrees F (200 degrees C).;Place the beef into a mixing bowl, and season with salt, onion, garlic salt, Italian seasoning, oregano, red pepper flakes, hot pepper sauce, and Worcestershire sauce; mix well. Add the milk, Parmesan cheese, and bread crumbs. Mix until evenly blended, then form into 1 1 / 2 - inch meatballs, and place onto a baking sheet.;Bake in the preheated oven until no longer pink in the center, 20 to 25 minutes."
             };
+                string[] creators = { "Rick Sanchez", "Morty Smith" };
             Random rand = new Random();
             
-            for (int i = 0; i < 15; i++)
+            for (int i = 0; i < 49; i++)
             {
                 var r = new Recipe();
                 r.Name = names[rand.Next(0, 15)];
@@ -160,10 +161,12 @@ namespace recipeWebsite.services
                 r.Time = times[rand.Next(0, 15)];
                 r.Ingredients = ingredient[rand.Next(0, 15)];
                 r.Directions = direction[rand.Next(0, 15)];
-                r.CreatedBy = "Eric Andre";
+                r.CreatedBy = creators[rand.Next(0,2)];
                 r.IsDeleted = false;
                 context.Recipes.Add(r);
-            }
+                context.RecipesCategories.Add(new RecipesCategories { RecipeId = r.Id, CategoryId = rand.Next(1, 4) });
+                context.RecipesCategories.Add(new RecipesCategories { RecipeId = r.Id, CategoryId = rand.Next(4, 8) });
+                }
             }
 
             if(!context.Categories.Any()){

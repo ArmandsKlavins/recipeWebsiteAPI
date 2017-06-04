@@ -20,35 +20,58 @@ namespace recipeWebsite.Controllers
         }
 
         // GET api/recipes/list
-        [HttpGet("list")]
-        public async Task<IActionResult> Get()
+        [HttpPost("list")]
+        public async Task<IActionResult> Get([FromBody] RecipeQuery rq)
         {
-            var recipes = await DB.Recipes.Where(c => c.IsDeleted == false)  
-                .Include(c => c.RecipesCategories)
-                .ThenInclude(c => c.Category).ToListAsync();
-            var recipesVM = Mapper.Map<IList<Recipe>, IList<RecipeVM>>(recipes);
+            var recipes = DB.Recipes.Where(c => c.IsDeleted == false);
+                
+            if (!String.IsNullOrEmpty(rq.Filter))
+            {
+                recipes = recipes.Where(c => c.Name.Contains(rq.Filter));
+            }
+            var recipeCount = recipes.Count().ToString();
+            if (!String.IsNullOrEmpty(rq.Category)) {
+                recipes = recipes.Where(c => c.RecipesCategories.Any(y => y.Category.Name == rq.Category && y.Category.IsDeleted == false));
+            }
+            HttpContext.Response.Headers.Add("RecipesCount", recipeCount);
+            HttpContext.Response.Headers.Add("Access-Control-Expose-Headers", "RecipesCount");
+
+            recipes = recipes.Include(c => c.RecipesCategories)
+                .ThenInclude(c => c.Category);
+            recipes = recipes.Skip(rq.Limit * (rq.Page - 1)).Take(rq.Limit);
+            var recipesVM = Mapper.Map<IList<Recipe>, IList<RecipeVM>>(await recipes.ToListAsync());
 
             return Ok(recipesVM);
         }
 
         // POST api/recipes
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody] Recipe obj)
+        public async Task<IActionResult> Post([FromBody] RecipeVM obj)
         {
             if(obj != null)
             {
-                var recipe = obj;
+                var recipe = Mapper.Map<RecipeVM,Recipe>(obj);
+                
+                
                 await DB.Recipes.AddAsync(recipe);
+                foreach(Categories c in obj.Categories)
+                {
+                    RecipesCategories rc = new RecipesCategories();
+                    rc.CategoryId = c.Id;
+                    rc.RecipeId = recipe.Id;
+                    await DB.RecipesCategories.AddAsync(rc);
+                }
                 await DB.SaveChangesAsync();
 
-                return Ok(recipe);
+                obj.Id = recipe.Id;
+                return Ok(obj);
             }
             return BadRequest("Expected model was not appropriate.");
         }
 
         // PUT api/recipes/{id}
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(long id, [FromBody] Recipe obj)
+        public async Task<IActionResult> Put(long id, [FromBody] RecipeVM obj)
         {
             if(obj != null)
             {
@@ -56,10 +79,25 @@ namespace recipeWebsite.Controllers
 
                 if(recipe != null)
                 {
-                    Mapper.Map<Recipe, Recipe>(obj, recipe);
-                    
+                    Mapper.Map<RecipeVM, Recipe>(obj, recipe);
+
+                    var rm = DB.RecipesCategories.Where(c => c.RecipeId == id);
+                    foreach(RecipesCategories rc in rm)
+                    {
+                       DB.RecipesCategories.Remove(rc);
+                    }
                     await DB.SaveChangesAsync();
-                    return Ok(recipe);
+                    foreach (Categories c in obj.Categories)
+                    {
+                        RecipesCategories rc = new RecipesCategories();
+                        rc.CategoryId = c.Id;
+                        rc.RecipeId = recipe.Id;
+                        await DB.RecipesCategories.AddAsync(rc);
+                    }
+
+                    await DB.SaveChangesAsync();
+                    
+                    return Ok(obj);
                 }
                 return BadRequest("The recipe you tried to modify was not found!");
             }

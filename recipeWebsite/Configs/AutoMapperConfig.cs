@@ -19,6 +19,8 @@ namespace recipeWebsite.Configs
                 
                 c.CreateMap<Recipe, RecipeVM>()
                 .ForMember(x => x.Categories, o => o.MapFrom(y => y.RecipesCategories));
+                c.CreateMap<RecipeVM, Recipe>();
+                c.CreateMap<RecipeVM, RecipeVM>();
                 c.CreateMap<Recipe, Recipe>();
                 c.CreateMap<User, Token>();
                 c.CreateMap<Category, Category>();

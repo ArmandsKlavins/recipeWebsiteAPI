@@ -32,6 +32,14 @@ namespace recipeWebsite.Models
         public string CreatedBy { get; set; }
         public IList<Categories> Categories { get; set; }
     }
+
+    public class RecipeQuery
+    {
+        public string Filter { get; set; }
+        public int Limit { get; set; }
+        public int Page { get; set; }
+        public string Category { get; set; }
+    }
     
     
 
